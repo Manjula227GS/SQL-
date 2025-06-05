@@ -1,0 +1,229 @@
+-------------------------------------------------
+-- 1. Simple SELECT INTO Statement
+--------------------------------------------------
+DECLARE
+    emp_name  varchar2(50);
+BEGIN 
+    select first_name into emp_name from hr.employees where employee_id=101;
+    dbms_output.put_line('Employee Name: ' || emp_name);
+END;
+
+--------------------------------------------------
+-- 2. SELECT Multiple Columns INTO Variables
+--------------------------------------------------
+DECLARE
+    emp_name varchar2(50);
+    emp_salary  number;
+BEGIN 
+    select first_name, salary into emp_name, emp_salary from hr.employees where employee_id =102;
+    dbms_output.put_line('Employee: ' || emp_name || ', Salary: ' || emp_salary);
+END;
+
+--------------------------------------------------
+-- 3. Handling No Data Found Exception
+--------------------------------------------------
+DECLARE
+    emp_salary number;
+BEGIN 
+    BEGIN 
+        select salary into emp_salary from hr.employees where employee_id=999; 
+        dbms_output.put_line('Salary: ' || emp_salary);
+    EXCEPTION
+        when no_data_found THEN
+        dbms_output.put_line('no employee found with this ID');
+    END;
+END;
+
+--------------------------------------------------
+-- 4. Using SELECT with CASE Statement
+--------------------------------------------------
+DECLARE
+    emp_status varchar2(20);
+BEGIN
+    select 
+        CASE
+            when salary > 50000 then 'High Salary'
+            else 'Low Salary'
+        END
+    into emp_status 
+    from hr.employees where employee_id=103;
+    dbms_output.put_line('Employee Status: ' || emp_status);
+END;
+
+--------------------------------------------------
+-- 5. Using COUNT() with SELECT INTO
+--------------------------------------------------
+DECLARE 
+    total_emp number;
+BEGIN 
+    select count(*) into total_emp from hr.employees;
+    dbms_output.put_line('Total Employees: ' || total_emp);
+END;
+
+--------------------------------------------------
+-- 6. Fetching MAX Salary
+--------------------------------------------------
+DECLARE 
+    max_salary number;
+BEGIN 
+    select max(salary) into max_salary from hr.employees;
+    dbms_output.put_line('Highest Salary: ' || max_salary);
+END;
+
+select max(salary) from hr.employees;   ---- sql
+
+--------------------------------------------------
+-- 7. Fetching MIN Salary
+--------------------------------------------------
+DECLARE 
+    min_salary number;
+BEGIN
+    select min(salary) into min_salary from hr.employees;
+    dbms_output.put_line('Lowest Salary: ' || min_salary);
+END;
+
+-------------------------------------------------
+-- 8. Fetching AVG Salary
+--------------------------------------------------
+DECLARE
+   avg_salary number;
+BEGIN
+    Select avg(salary) into avg_salary from hr.employees;
+    dbms_output.put_line('Average Salary: ' || avg_salary);
+END;
+
+--------------------------------------------------
+-- 9. Fetching Employee Name Using Subquery
+--------------------------------------------------
+DECLARE
+    emp_name varchar2(50);
+BEGIN 
+    select first_name into emp_name from hr.employees 
+    where employee_id = (select min(employee_id) from hr.employees);
+    dbms_output.put_line('first employee: ' || emp_name);
+END;
+
+--------------------------------------------------
+-- 10. Fetching Data Using EXISTS
+--------------------------------------------------
+DECLARE
+    emp_exists varchar2(10);
+BEGIN
+    select 
+        case 
+            when exists (select 1 from hr.employees where employee_id = 105) then 'yes'
+            else 'no'
+        end 
+    into emp_exists 
+    from dual;
+    dbms_output.put_line('employee exists: ' || emp_exists);
+END;
+
+--------------------------------------------------
+-- 11. Selecting Employee with Highest Salary
+--------------------------------------------------
+DECLARE
+    emp_name varchar2(50);
+BEGIN
+    select first_name into emp_name from hr.employees 
+    where salary = (select max(salary) from hr.employees);
+    dbms_output.put_line('highest paid employee: ' || emp_name);
+END;
+
+--------------------------------------------------
+-- 12. Fetching Department Name
+--------------------------------------------------
+DECLARE
+    dept_name VARCHAR2(50);
+BEGIN
+    SELECT department_name INTO dept_name FROM departments WHERE department_id = 10;
+    DBMS_OUTPUT.PUT_LINE('Department: ' || dept_name);
+END;
+
+--------------------------------------------------
+-- 13. Fetching Employee Count in a Department
+--------------------------------------------------
+DECLARE
+    emp_count number;
+BEGIN
+    select count(*) into emp_count from hr.employees where department_id = 20;
+    dbms_output.put_line('employees in department 20: ' || emp_count);
+END;
+
+--------------------------------------------------
+-- 14. Fetching Sum of All Salaries
+--------------------------------------------------
+DECLARE
+    total_salary NUMBER;
+BEGIN
+    select sum(salary) into total_salary from hr.employees;
+    dbms_output.put_line('total salaries: ' || total_salary);
+END;
+
+--------------------------------------------------
+-- 15. Fetching Employee Joining Date
+--------------------------------------------------
+DECLARE
+    hire_date date;
+BEGIN
+   select hire_date into hire_date from hr.employees where employee_id = 107;
+    dbms_output.put_line('employee hire date: ' || hire_date);
+END;
+
+--------------------------------------------------
+-- 16. Selecting Second Highest Salary
+--------------------------------------------------
+DECLARE
+    second_highest_salary number;
+BEGIN
+    select distinct salary into second_highest_salary from hr.employees 
+    where salary < (select max(salary) from hr.employees) 
+    order by salary desc fetch first 1 row only;
+    dbms_output.put_line('second highest salary: ' || second_highest_salary);
+END;
+
+--------------------------------------------------
+-- 17. Selecting Employees with Same Salary as John
+--------------------------------------------------
+DECLARE
+    emp_count number;
+BEGIN
+    select count(*) into emp_count from hr.employees 
+    where salary = (select salary from hr.employees where first_name = 'john');
+    dbms_output.put_line('employees with john''s salary: ' || emp_count);
+END;
+
+-------------------------------------------------
+-- 18. Fetching Manager Name of an Employee
+--------------------------------------------------
+DECLARE
+    manager_name varchar2(50);
+BEGIN
+    select first_name into manager_name from hr.employees 
+    where employee_id = (select manager_id from hr.employees where employee_id = 110);
+    dbms_output.put_line('manager: ' || manager_name);
+END;
+
+--------------------------------------------------
+-- 19. Fetching Number of Employees Who Earn Above Average Salary
+--------------------------------------------------
+DECLARE
+    count_above_avg number;
+BEGIN
+    select count(*) into count_above_avg from hr.employees 
+    where salary > (select avg(salary) from hr.employees);
+    dbms_output.put_line('employees earning above average: ' || count_above_avg);
+END;
+
+--------------------------------------------------
+-- 20. Fetching Employee Name and Role
+--------------------------------------------------
+DECLARE
+   emp_name varchar2(50);
+    emp_role varchar2(50);
+BEGIN
+    select first_name, job_id into emp_name, emp_role from hr.employees 
+    where employee_id = 112;
+    dbms_output.put_line('employee: ' || emp_name || ', role: ' || emp_role);
+END;
+
